@@ -1,16 +1,27 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
-import { Mail } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
+import { ContactSection } from "@/components/ContactSection";
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isNameHovered, setIsNameHovered] = useState(false);
   const [isRoleHovered, setIsRoleHovered] = useState(false);
+  const [isAstroHovered, setIsAstroHovered] = useState(false);
+  const [isHoveringClickable, setIsHoveringClickable] = useState(false);
+  const [isMouseOnScreen, setIsMouseOnScreen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const isHoveringContent = isNameHovered || isRoleHovered || isAstroHovered;
+
+  const orbX = useSpring(-200, { stiffness: 80, damping: 25, mass: 0.8 });
+  const orbY = useSpring(-200, { stiffness: 80, damping: 25, mass: 0.8 });
 
   const containerRef = useRef<HTMLDivElement>(null);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
@@ -29,17 +40,147 @@ export default function Home() {
         x: (e.clientX / window.innerWidth - 0.5) * 20,
         y: (e.clientY / window.innerHeight - 0.5) * 20,
       });
+      orbX.set(e.clientX - 40);
+      orbY.set(e.clientY - 40);
+      if (!isMouseOnScreen) setIsMouseOnScreen(true);
+      
+      const target = e.target as HTMLElement;
+      setIsHoveringClickable(!!(target.closest('a') || target.closest('button')));
     };
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('a') || target.closest('button')) {
+        setIsMouseOnScreen(false);
+        return;
+      }
+
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        setMousePosition({
+          x: (touch.clientX / window.innerWidth - 0.5) * 20,
+          y: (touch.clientY / window.innerHeight - 0.5) * 20,
+        });
+        orbX.set(touch.clientX - 40);
+        orbY.set(touch.clientY - 40);
+        setIsMouseOnScreen(true);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        setMousePosition({
+          x: (touch.clientX / window.innerWidth - 0.5) * 20,
+          y: (touch.clientY / window.innerHeight - 0.5) * 20,
+        });
+        orbX.set(touch.clientX - 40);
+        orbY.set(touch.clientY - 40);
+      }
+    };
+
+    const handleMouseLeave = () => setIsMouseOnScreen(false);
+    const handleMouseEnter = () => setIsMouseOnScreen(true);
+
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    document.addEventListener("mouseleave", handleMouseLeave);
+    document.addEventListener("mouseenter", handleMouseEnter);
+
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("mouseleave", handleMouseLeave);
+      document.removeEventListener("mouseenter", handleMouseEnter);
+    };
+  }, [orbX, orbY, isMouseOnScreen]);
 
   return (
-    <div className="relative w-full bg-black text-black font-sans">
+    <div className="relative w-full bg-black text-black font-sans" id="home">
       {/* Scroll Timeline Container */}
       <div ref={containerRef} className="relative h-[150vh] w-full">
         {/* Sticky Hero Viewport */}
         <motion.div className="sticky top-0 w-full h-[100dvh] overflow-hidden flex flex-col bg-[#f4f4f5]">
+
+          {/* Liquid Refraction SVG Filter */}
+          <svg className="hidden pointer-events-none absolute">
+            <filter id="liquid-refraction" x="-20%" y="-20%" width="140%" height="140%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" result="noise">
+                <animate attributeName="baseFrequency" values="0.015;0.02;0.015" dur="15s" repeatCount="indefinite" />
+              </feTurbulence>
+              <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 10 -4" in="noise" result="smoothNoise" />
+              <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="35" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+
+            <filter id="orb-wobble">
+              <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="1" result="wobbleNoise">
+                <animate attributeName="baseFrequency" values="0.05;0.07;0.05" dur="10s" repeatCount="indefinite" />
+              </feTurbulence>
+              <feDisplacementMap in="SourceGraphic" in2="wobbleNoise" scale="8" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+          </svg>
+
+          {/* Liquid Glass Orb */}
+          <motion.div
+            className="absolute top-0 left-0 w-[80px] h-[80px] rounded-full pointer-events-none z-[100]"
+            style={{
+              x: orbX,
+              y: orbY,
+              opacity: typeof window !== 'undefined' && window.innerWidth < 640 ? astroOpacity : elementOpacity,
+              backdropFilter: "url(#liquid-refraction) blur(2px)",
+              WebkitBackdropFilter: "url(#liquid-refraction) blur(2px)",
+              filter: "url(#orb-wobble) drop-shadow(0 15px 35px rgba(0,0,0,0.15))",
+              boxShadow: "inset 0 0 15px rgba(255,255,255,0.9), inset 8px 0 20px rgba(255,255,255,0.6), inset -8px -8px 25px rgba(0,0,0,0.1), inset 0 -15px 30px rgba(236,72,153,0.15)"
+            }}
+            animate={{
+              rotate: 360,
+              scale: (typeof window !== 'undefined' && window.innerWidth < 640)
+                ? (isScrolled ? 0 : (isHoveringClickable ? 0 : (isHoveringContent ? 1.5 : 1)))
+                : (isMouseOnScreen && !isScrolled ? (isHoveringClickable ? 0 : (isHoveringContent ? 1.5 : 1)) : 0)
+            }}
+            transition={{
+              rotate: { duration: 40, repeat: Infinity, ease: "linear" },
+              scale: { duration: 0.8, ease: "easeOut" }
+            }}
+          >
+            {/* Iridescent Internal Swirl */}
+            <motion.div
+              className="absolute inset-0 rounded-full opacity-70 mix-blend-color-burn"
+              style={{
+                background: "conic-gradient(from 0deg at 50% 50%, rgba(56,189,248,0.4), rgba(232,121,249,0.4), rgba(250,204,21,0.4), rgba(56,189,248,0.4))",
+                filter: "blur(4px)"
+              }}
+              animate={{ rotate: -360, scale: [1, 1.2, 1] }}
+              transition={{
+                rotate: { duration: 15, repeat: Infinity, ease: "linear" },
+                scale: { duration: 8, repeat: Infinity, ease: "easeInOut" }
+              }}
+            />
+            {/* Dark Fluid Pockets and Specular Spots */}
+            <motion.div
+              className="absolute inset-0 rounded-full mix-blend-overlay opacity-90"
+              style={{
+                background: "radial-gradient(ellipse at 30% 30%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 20%), radial-gradient(ellipse at 70% 70%, rgba(0,0,0,0.2) 0%, transparent 40%)"
+              }}
+              animate={{ rotate: 360, scale: [1, 1.1, 1], x: [0, 6, -6, 0], y: [0, -6, 6, 0] }}
+              transition={{
+                rotate: { duration: 25, repeat: Infinity, ease: "linear" },
+                scale: { duration: 12, repeat: Infinity, ease: "easeInOut" },
+                x: { duration: 14, repeat: Infinity, ease: "easeInOut" },
+                y: { duration: 16, repeat: Infinity, ease: "easeInOut" }
+              }}
+            />
+          </motion.div>
           <motion.div style={{ opacity: blackOverlayOpacity }} className="absolute inset-0 bg-black pointer-events-none z-50" />
           {/* Header / Nav */}
           <motion.header style={{ opacity: elementOpacity }} className="absolute top-0 w-full flex justify-between items-center p-8 sm:p-12 z-30 pointer-events-auto">
@@ -49,7 +190,7 @@ export default function Home() {
               transition={{ duration: 1, delay: 0.2 }}
               className="text-xs sm:text-sm font-[700] uppercase text-black tracking-widest"
             >
-              SAANVI
+              SS-001
             </motion.div>
 
             <motion.nav
@@ -314,7 +455,9 @@ export default function Home() {
                   src="/astro-2.png"
                   alt="Astronaut"
                   fill
-                  className="object-contain object-center drop-shadow-[0_20px_50px_rgba(0,0,0,0.1)]"
+                  className="object-contain object-center drop-shadow-[0_20px_50px_rgba(0,0,0,0.1)] pointer-events-auto"
+                  onMouseEnter={() => setIsAstroHovered(true)}
+                  onMouseLeave={() => setIsAstroHovered(false)}
                   priority
                 />
               </motion.div>
@@ -331,8 +474,8 @@ export default function Home() {
               </span>
             </motion.div>
 
-            {/* Bottom Right Social Links */}
-            <motion.div style={{ opacity: elementOpacity }} className="absolute bottom-6 right-6 sm:bottom-12 sm:right-12 z-50 flex gap-4 sm:gap-6 items-baseline">
+            {/* Social Links */}
+            <motion.div style={{ opacity: elementOpacity }} className="absolute top-6 right-6 sm:top-auto sm:bottom-12 sm:right-12 z-50 flex gap-4 sm:gap-6 items-baseline">
               <a
                 href="https://github.com/Saanvi019"
                 target="_blank"
@@ -368,22 +511,24 @@ export default function Home() {
       </div>
 
       {/* Deep Space Profile Section */}
-      <section className="relative w-full min-h-screen bg-black text-white flex flex-col items-center z-10 pb-0 overflow-hidden" id="about">
+      <section className="relative w-full min-h-screen bg-black text-black flex flex-col items-center z-10 pb-0 overflow-hidden" id="about">
 
         {/* Dotted Grid Background */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30 mt-4">
-          <div className="w-[120vw] h-[120vw] sm:w-[80vw] sm:h-[80vw] max-w-[800px] max-h-[800px] rounded-full"
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30 mt-4 px-8 sm:px-12">
+          <div className="w-full aspect-square max-w-[800px] max-h-[800px] rounded-full"
             style={{
-              backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)",
-              backgroundSize: "32px 32px",
-              WebkitMaskImage: "radial-gradient(circle, black 20%, transparent 60%)",
-              maskImage: "radial-gradient(circle, black 20%, transparent 60%)"
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64'%3E%3Cpath d='M32 28v8m-4-4h8' stroke='rgba(255, 255, 255, 0.4)' stroke-width='1.5' fill='none' stroke-linecap='round' /%3E%3C/svg%3E")`,
+              WebkitMaskImage: "radial-gradient(circle, black 15%, transparent 50%)",
+              maskImage: "radial-gradient(circle, black 15%, transparent 50%)"
             }}
           />
         </div>
 
-        <div className="relative z-10 w-full max-w-4xl px-4 sm:px-8 py-16 flex flex-col items-center border border-dashed border-zinc-700 mt-16 sm:mt-24 mb-16 bg-black/50 backdrop-blur-sm">
-
+        <div className="relative z-10 w-[calc(100%-2rem)] sm:w-[calc(100%-4rem)] max-w-4xl px-4 sm:px-8 py-16 flex flex-col items-center rounded-3xl mt-16 sm:mt-24 mb-16 bg-black/50 backdrop-blur-sm">
+          {/* Custom Bold Dashed Border */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="20" fill="none" stroke="#71717a" strokeWidth="2" strokeDasharray="14 20" />
+          </svg>
           {/* ABOUT ME in Center of Grid */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -513,51 +658,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CONTACT ME SECTION */}
-      <footer className="w-full flex justify-center pt-0 pb-24 sm:pt-4 sm:pb-32 relative z-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          viewport={{ once: true, margin: "-50px" }}
-          className="w-full max-w-4xl px-8 flex flex-col items-center justify-center gap-12 text-center"
-        >
-          {/* Top Text */}
-          <span className="text-[10px] text-zinc-600 tracking-[0.3em] uppercase">Let's Connect</span>
-
-          {/* Centered Image with Button Overlay */}
-          <div className="relative w-full max-w-[400px] flex justify-center items-center">
-            <Image
-              src="/reachme.png"
-              alt="Contact Me"
-              width={600}
-              height={600}
-              className="w-full h-auto drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]"
-            />
-
-            {/* Edge Fade Overlays */}
-            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black to-transparent pointer-events-none" />
-            <div className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-black to-transparent pointer-events-none" />
-            <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-black to-transparent pointer-events-none" />
-
-            {/* Center Button */}
-            <div className="absolute z-10 translate-y-16 flex justify-center items-center">
-              <motion.a
-                href="mailto:hello@example.com"
-                className="border border-green-400/80 bg-black/60 backdrop-blur-md text-white text-[10px] sm:text-xs tracking-[0.3em] font-[600] px-6 sm:px-8 py-4 rounded-full uppercase cursor-pointer shadow-[0_0_50px_rgba(34,197,94,0.8)] transition-all duration-300"
-                whileHover={{
-                  scale: 1.15,
-                  boxShadow: "0px 0px 100px rgba(34,197,94,1), inset 0px 0px 20px rgba(34,197,94,0.5)",
-                  borderColor: "rgba(74, 222, 128, 1)",
-                  transition: { duration: 0.2 }
-                }}
-              >
-                Send a signal
-              </motion.a>
-            </div>
-          </div>
-        </motion.div>
-      </footer>
+      <ContactSection />
     </div>
 
   );
@@ -598,6 +699,7 @@ const PROJECTS = [
     tech: "Node.js · GitHub API · React",
     status: "DEPLOYED",
     image: "/bridgepr/BP-hero.png",
+    link: "https://bridge-pr-website.vercel.app/",
     collapsedStyle: "bg-gradient-to-r from-[#141205] via-[#1a1707] to-[#0d0c03]"
   },
   {
@@ -607,6 +709,7 @@ const PROJECTS = [
     tech: "Python · OpenAI · Git",
     status: "DEPLOYED",
     image: "/commitAI/CA-hero.png",
+    link: "https://commit-ai.vercel.app/",
     collapsedStyle: "bg-gradient-to-r from-[#071206] via-[#0a1a08] to-[#050d04]"
   },
   {
@@ -616,6 +719,7 @@ const PROJECTS = [
     tech: "Next.js · Postgres · Security",
     status: "DEPLOYED",
     image: "/veylox/veylox-hero.png",
+    link: "https://veylox.vercel.app/",
     collapsedStyle: "bg-gradient-to-r from-[#050914] via-[#070e1c] to-[#03060d]"
   }
 ];
@@ -624,7 +728,7 @@ function MissionAccordion() {
   const [active, setActive] = useState(1);
 
   return (
-    <div className="w-full flex flex-col mb-24 mt-0 px-0 sm:px-8">
+    <div className="w-full flex flex-col mb-24 mt-0 px-0 sm:px-8" id="missions">
       <h3 className="text-xl md:text-3xl font-[800] tracking-[0.2em] text-zinc-300 mb-12 uppercase text-center w-full">Missions</h3>
 
       <div className="flex flex-col gap-4 w-full max-w-2xl mx-auto">
@@ -636,7 +740,7 @@ function MissionAccordion() {
               key={project.id}
               layout
               onClick={() => setActive(i)}
-              className={`relative overflow-hidden cursor-pointer transition-shadow duration-300 flex flex-col shadow-2xl mx-auto ${isActive ? "w-full rounded-2xl aspect-[3/4] sm:aspect-[1502/716] h-auto min-h-[350px] sm:min-h-0 shadow-black/80 bg-[#050505]" : `w-[94%] rounded-full h-14 sm:h-16 aspect-auto shadow-black/40 hover:shadow-black/60 ${project.collapsedStyle || "bg-[#050505]"}`
+              className={`relative overflow-hidden cursor-pointer transition-shadow duration-300 flex flex-col shadow-2xl mx-auto ${isActive ? "w-full rounded-2xl aspect-[16/9] sm:aspect-[1502/716] h-auto min-h-[200px] sm:min-h-0 shadow-black/80 bg-[#050505]" : `w-[94%] rounded-full h-14 sm:h-16 aspect-auto shadow-black/40 hover:shadow-black/60 ${project.collapsedStyle || "bg-[#050505]"}`
                 }`}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
@@ -694,16 +798,22 @@ function MissionAccordion() {
                   <div className="flex justify-between items-end w-full">
                     <div className="flex flex-col text-left max-w-[85%] sm:max-w-[80%] pr-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">
                       <h2 className="text-2xl sm:text-4xl font-[800] tracking-widest text-white mb-1 sm:mb-2 leading-tight">{project.name}</h2>
-                      {project.subtitle && <h3 className="text-[10px] sm:text-sm font-[600] tracking-widest text-zinc-300 mb-2 uppercase">{project.subtitle}</h3>}
-                      <p className="text-[10px] sm:text-sm text-zinc-300 font-[400] leading-relaxed max-w-md hidden sm:block">{project.desc}</p>
+                      {project.subtitle && <h3 className="text-[10px] sm:text-sm font-[600] tracking-widest text-zinc-300 mb-1 uppercase">{project.subtitle}</h3>}
+                      {project.tech && <h3 className="text-[9px] sm:text-[11px] font-[600] tracking-widest text-zinc-400 mb-2 uppercase">{project.tech}</h3>}
+                      <p className="text-[10px] sm:text-sm text-zinc-300 font-[400] leading-relaxed max-w-md line-clamp-2 sm:line-clamp-none">{project.desc}</p>
                     </div>
 
                     {/* Arrow Button */}
-                    <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center pointer-events-auto hover:bg-white/20 transition-colors shrink-0 mb-2 mr-2">
+                    <a 
+                      href={project.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center pointer-events-auto hover:bg-white/20 transition-colors shrink-0 mb-2 mr-2"
+                    >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
                         <polyline points="9 18 15 12 9 6"></polyline>
                       </svg>
-                    </div>
+                    </a>
                   </div>
                 </div>
               </motion.div>
