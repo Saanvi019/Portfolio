@@ -593,11 +593,11 @@ export default function Home() {
               Systems
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-12 text-center sm:text-left mx-auto">
-              <TechCategory title="FRONTEND" items="React · Next.js · TypeScript · Tailwind" />
+              <TechCategory title="FRONTEND" items="React · Next.js · Tailwind" />
               <TechCategory title="BACKEND" items="Node.js · Express · REST APIs" />
               <TechCategory title="DATABASE" items="PostgreSQL · MongoDB · Firebase" />
-              <TechCategory title="AI" items="Gemini · Hugging Face · Generative AI" />
-              <TechCategory title="TOOLS" items="Git · GitHub · Docker · Postman" />
+              <TechCategory title="LANGUAGES" items="JavaScript · TypeScript · C++" />
+              <TechCategory title="TOOLS" items="Git · GitHub · Docker" />
             </div>
           </motion.div>
 
@@ -650,7 +650,7 @@ export default function Home() {
             viewport={{ once: true, margin: "-50px" }}
             className="w-full max-w-md flex flex-col gap-6"
           >
-            <a href="/resume.pdf" target="_blank" className="w-full border border-zinc-800 hover:border-zinc-500 hover:bg-zinc-900 transition-colors text-center py-6 uppercase text-[10px] tracking-[0.3em] font-[500] text-zinc-300 hover:text-white">
+            <a href="https://www.resumex.tech/Saanvi019/fsd" target="_blank" className="w-full border border-zinc-800 hover:border-zinc-500 hover:bg-zinc-900 transition-colors text-center py-6 uppercase text-[10px] tracking-[0.3em] font-[500] text-zinc-300 hover:text-white">
               View Resume ↗
             </a>
           </motion.div>
