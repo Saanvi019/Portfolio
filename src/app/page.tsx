@@ -386,18 +386,18 @@ export default function Home() {
                   </g>
 
                   {/* Annotations */}
-                  {/* Outer Orbit Left Annotation (CSE//2027) */}
+                  {/* Outer Orbit Left Annotation (BUILD//026) */}
                   <g className="hidden sm:block" transform="translate(8, 587)">
                     <circle cx="0" cy="0" r="4" fill="black" />
                     <text x="14" y="4" fill="black" fontSize="13" fontWeight="500" className="uppercase tracking-widest">
-                      CSE//2027
+                      BUILD//026
                     </text>
                   </g>
                   {/* Mobile Outer Annotation (r=650 -> angle=170 -> 500+650*cos(170)=-140, 500+650*sin(170)=612) */}
                   <g className="block sm:hidden" transform="translate(-140, 612)">
                     <circle cx="0" cy="0" r="4" fill="black" />
                     <text x="14" y="4" fill="black" fontSize="13" fontWeight="500" className="uppercase tracking-widest">
-                      CSE//2027
+                      BUILD//026
                     </text>
                   </g>
 
