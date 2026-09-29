@@ -525,7 +525,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="relative z-10 w-[calc(100%-2rem)] sm:w-[calc(100%-4rem)] max-w-4xl px-4 sm:px-8 py-16 flex flex-col items-center rounded-3xl mt-16 sm:mt-24 mb-16 bg-black/50 backdrop-blur-sm">
+        <div className="relative z-10 w-[calc(100%-2rem)] sm:w-[calc(100%-4rem)] max-w-4xl px-4 sm:px-8 pt-16 pb-12 flex flex-col items-center rounded-3xl mt-16 sm:mt-24 mb-16 bg-black/50 backdrop-blur-sm">
           {/* Custom Bold Dashed Border */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
             <rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="20" fill="none" stroke="#71717a" strokeWidth="2" strokeDasharray="14 20" />
@@ -536,7 +536,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
             viewport={{ once: true, margin: "-100px" }}
-            className="relative flex flex-col items-center text-center mb-32 sm:mb-48"
+            className="relative flex flex-col items-center text-center mb-16 sm:mb-24"
           >
             {/* Metadata Elements */}
             <div className="absolute -top-12 flex items-center gap-3 text-[10px] text-zinc-500 tracking-[0.3em]">
@@ -547,10 +547,10 @@ export default function Home() {
               ACTIVE
             </div>
 
-            <h2 className="text-xl md:text-3xl font-[800] tracking-[0.2em] text-zinc-300 mb-12 uppercase text-center">
+            <h2 className="text-xl md:text-3xl font-[800] tracking-[0.2em] text-zinc-300 mb-8 uppercase text-center">
               ABOUT ME
             </h2>
-            <div className="max-w-xl text-sm md:text-base text-zinc-300 leading-relaxed tracking-wider font-[400] space-y-6">
+            <div className="max-w-xl text-sm md:text-base text-zinc-300 leading-relaxed tracking-wider font-[400] space-y-4">
               <p>
                 I like solving problems that developers face every day. Having experienced those problems myself, I believe technology should remove friction rather than create more of it.
               </p>
@@ -588,7 +588,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
             viewport={{ once: true, margin: "-100px" }}
-            className="w-full flex flex-col mb-24 sm:mb-32"
+            className="w-full flex flex-col mb-12 sm:mb-16"
           >
             <h3 className="text-xl md:text-3xl font-[800] tracking-[0.2em] text-zinc-300 mb-12 uppercase text-center">
               Systems
