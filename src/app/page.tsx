@@ -452,9 +452,10 @@ export default function Home() {
                 }}
               >
                 <Image
-                  src="/astro-2.png"
+                  src="/astro-2.webp"
                   alt="Astronaut"
                   fill
+                  priority
                   className="object-contain object-center drop-shadow-[0_20px_50px_rgba(0,0,0,0.1)] pointer-events-auto"
                   onMouseEnter={() => setIsAstroHovered(true)}
                   onMouseLeave={() => setIsAstroHovered(false)}
@@ -698,7 +699,7 @@ const PROJECTS = [
     desc: "BridgePR analyzes backend API changes in pull requests and warns when frontend code depends on them, before they reach production.",
     tech: "Node.js · GitHub API · React",
     status: "DEPLOYED",
-    image: "/bridgepr/BP-hero.png",
+    image: "/bridgepr/BP-hero.webp",
     link: "https://bridge-pr-website.vercel.app/",
     collapsedStyle: "bg-gradient-to-r from-[#141205] via-[#1a1707] to-[#0d0c03]"
   },
@@ -708,7 +709,7 @@ const PROJECTS = [
     desc: "Meet the CLI tool that analyzes your staged changes, automates commit generation, and keeps you in the flow.",
     tech: "Python · OpenAI · Git",
     status: "DEPLOYED",
-    image: "/commitAI/CA-hero.png",
+    image: "/commitAI/CA-hero.webp",
     link: "https://commit-ai.vercel.app/",
     collapsedStyle: "bg-gradient-to-r from-[#071206] via-[#0a1a08] to-[#050d04]"
   },
@@ -718,7 +719,7 @@ const PROJECTS = [
     desc: "Your secrets deserve better than scattered .env files. Stay secure while your projects scale. Built for developers who care about control and security.",
     tech: "Next.js · Postgres · Security",
     status: "DEPLOYED",
-    image: "/veylox/veylox-hero.png",
+    image: "/veylox/veylox-hero.webp",
     link: "https://veylox.vercel.app/",
     collapsedStyle: "bg-gradient-to-r from-[#050914] via-[#070e1c] to-[#03060d]"
   }

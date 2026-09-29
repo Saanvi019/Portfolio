@@ -86,7 +86,7 @@ export function ContactSection() {
                 className="absolute w-full max-w-[400px] flex justify-center items-center"
               >
                 <Image
-                  src="/reachme.png"
+                  src="/reachme.webp"
                   alt="Contact Me"
                   width={600}
                   height={600}
