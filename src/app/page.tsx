@@ -456,10 +456,10 @@ export default function Home() {
                   alt="Astronaut"
                   fill
                   priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-contain object-center drop-shadow-[0_20px_50px_rgba(0,0,0,0.1)] pointer-events-auto"
                   onMouseEnter={() => setIsAstroHovered(true)}
                   onMouseLeave={() => setIsAstroHovered(false)}
-                  priority
                 />
               </motion.div>
             </motion.div>
